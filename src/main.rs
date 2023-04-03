@@ -1,6 +1,6 @@
 // Commands
 // /githubpp - gets the github username
-// use dotenv::dotenv;
+use dotenv::dotenv;
 // use std::env::var;
 use std::convert::Infallible;
 use std::net::SocketAddr;
@@ -20,10 +20,21 @@ async fn hello(_: Request<hyper::body::Incoming>) -> Result<Response<Full<Bytes>
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error + Send + Sync>> {
-    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
+    dotenv().ok();
+    let port: u16 = std::env::var("PORT")
+        .unwrap_or("3000".to_string())
+        .parse()
+        .unwrap();
+
+    let addr = SocketAddr::from(([127, 0, 0, 1], port));
 
     // We create a TcpListener and bind it to 127.0.0.1:3000
     let listener = TcpListener::bind(addr).await?;
+
+    println!(
+        "Listening on http://{} \nReady for accepting requests!",
+        addr
+    );
 
     // We start a loop to continuously accept incoming connections
     loop {
